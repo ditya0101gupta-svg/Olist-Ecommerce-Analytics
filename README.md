@@ -59,6 +59,56 @@ To transform Brazilian e-commerce transactional data into actionable business in
 
 Brazilian E-Commerce Public Dataset by Olist, available on Kaggle.
 
+## Row-Level Security (RLS)
+
+### Overview
+
+Implemented state-based Row-Level Security (RLS) in Power BI Desktop to restrict access to customer and transaction data based on geographical location.
+
+### Security Configuration
+
+| Property | Configuration |
+|---|---|
+| Security Role | `SP_State_Access` |
+| Table | `Customers` |
+| Column | `customer_state` |
+| Filter Condition | Equals `SP` |
+| Security Type | Static Row-Level Security |
+| Testing Method | Power BI Desktop — View as Role |
+
+### DAX Security Filter
+
+```dax
+[customer_state] = "SP"
+```
+
+This security rule restricts the role to customers located in São Paulo (SP), Brazil.
+
+### RLS Testing & Validation
+
+The security role was tested using Power BI Desktop's **View as** functionality.
+
+| KPI | Full Dataset | São Paulo RLS |
+|---|---:|---:|
+| Total Sales | R$13.59M | R$5.20M |
+| Total Orders | 99K | 42K |
+| Total Customers | 96K | 40K |
+| Average Customer Rating | 4.09 | 4.17 |
+| On-Time Delivery Rate | 91.89% | 94.11% |
+
+### Validation Results
+
+- Successfully activated the `SP_State_Access` security role.
+- Verified that dashboard KPIs changed after applying RLS.
+- Confirmed that the revenue-by-state visual displayed only São Paulo.
+- Verified that customer-based restrictions propagated through related transaction tables.
+
+### RLS Testing Screenshot
+
+![São Paulo Row-Level Security Test](RLS_SP_State.png)
+
+**Note:** RLS was configured and tested locally in Power BI Desktop. Deployment and user-role assignments in Power BI Service have not yet been completed.
+
 ## Data Model & Relationships
 
 The Olist E-Commerce Analytics Power BI report uses a relational data model connecting customer, order, product, seller, payment, review, and product-category information.
