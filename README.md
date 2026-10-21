@@ -147,6 +147,298 @@ All seven relationships are active.
 
 ![Olist Power BI Data Model](Data_Model.png)
 
+## 📊 DAX Measures Documentation
+
+This project uses **DAX (Data Analysis Expressions)** in Microsoft Power BI to calculate key performance indicators across sales, customers, products, and delivery performance.
+
+### 1. Sales & Revenue Measures
+
+**Total Sales**
+
+Calculates total product sales revenue.
+
+```dax
+Total Sales =
+SUM('Order_items'[price])
+```
+
+**Total Freight**
+
+Calculates the total shipping/freight value.
+
+```dax
+Total Freight =
+SUM('Order_items'[freight_value])
+```
+
+**Average Order Value**
+
+Calculates average sales revenue per order.
+
+```dax
+Average Order Value =
+DIVIDE([Total Sales], [Total Orders], 0)
+```
+
+**Average Items per Order**
+
+Calculates the average number of purchased items per distinct order.
+
+```dax
+Average Items per Order =
+DIVIDE(
+    COUNTROWS(Order_items),
+    DISTINCTCOUNT(Order_items[order_id]),
+    0
+)
+```
+
+### 2. Customer Analytics Measures
+
+**Total Customers / Total Unique Customers**
+
+Counts distinct customers using their unique customer identifiers.
+
+```dax
+Total Customers =
+DISTINCTCOUNT('Customers'[customer_unique_id])
+```
+
+```dax
+Total Unique Customers =
+DISTINCTCOUNT(Customers[customer_unique_id])
+```
+
+These two measures use the same distinct-customer calculation.
+
+Additional customer KPIs displayed in the dashboard:
+
+- Repeat Customers: approximately 3K
+- Repeat Purchase Rate: 3.12%
+- Average Orders per Customer: 1.03
+
+Their full DAX definitions were not visible in the provided screenshots.
+
+### 3. Product Performance Measures
+
+**Total Products**
+
+Calculates the number of distinct products.
+
+```dax
+Total Products =
+DISTINCTCOUNT(Products[product_id])
+```
+
+**Total Product Categories**
+
+Calculates the number of distinct product categories.
+
+```dax
+Total Product Categories =
+DISTINCTCOUNT(Products[product_category_name])
+```
+
+**Total Items Sold**
+
+Counts the rows in the order items table.
+
+```dax
+Total Items Sold =
+COUNTROWS(Order_items)
+```
+
+**Average Product Price**
+
+Calculates the average price of purchased items.
+
+```dax
+Average Product Price =
+AVERAGE('Order_items'[price])
+```
+
+### 4. Customer Satisfaction Measures
+
+**Average Customer Rating**
+
+Calculates the average review score.
+
+```dax
+Average Customer Rating =
+AVERAGE('Reviews'[review_score])
+```
+
+Dashboard result: **4.09 / 5**
+
+### 5. Delivery Performance Measures
+
+**Average Delivery Time**
+
+Calculates the average number of days between purchase and customer delivery for delivered orders with valid timestamps.
+
+```dax
+Average Delivery Time =
+AVERAGEX(
+    FILTER(
+        'Orders',
+        'Orders'[order_status] = "delivered"
+            && NOT ISBLANK('Orders'[order_purchase_timestamp])
+            && NOT ISBLANK('Orders'[order_delivered_customer_date])
+    ),
+    DATEDIFF(
+        'Orders'[order_purchase_timestamp],
+        'Orders'[order_delivered_customer_date],
+        DAY
+    )
+)
+```
+
+**Average Delivery Days**
+
+Calculates the average delivery duration for orders with available purchase and delivery dates, without an explicit delivered-status filter.
+
+```dax
+Average Delivery Days =
+AVERAGEX(
+    FILTER(
+        Orders,
+        NOT ISBLANK(Orders[order_delivered_customer_date])
+            && NOT ISBLANK(Orders[order_purchase_timestamp])
+    ),
+    DATEDIFF(
+        Orders[order_purchase_timestamp],
+        Orders[order_delivered_customer_date],
+        DAY
+    )
+)
+```
+
+**Average Order Processing Hours**
+
+Calculates the average number of hours between purchase and order approval.
+
+```dax
+Average Order Processing Hours =
+AVERAGEX(
+    FILTER(
+        Orders,
+        NOT ISBLANK(Orders[order_purchase_timestamp])
+            && NOT ISBLANK(Orders[order_approved_at])
+    ),
+    DATEDIFF(
+        Orders[order_purchase_timestamp],
+        Orders[order_approved_at],
+        HOUR
+    )
+)
+```
+
+**On-Time Delivery Rate %**
+
+Calculates the percentage of eligible delivered orders that arrived on or before their estimated delivery date.
+
+```dax
+On-Time Delivery Rate % =
+VAR DeliveredOrders =
+    FILTER(
+        Orders,
+        Orders[order_status] = "delivered"
+            && NOT ISBLANK(Orders[order_delivered_customer_date])
+            && NOT ISBLANK(Orders[order_estimated_delivery_date])
+    )
+VAR OnTimeOrders =
+    FILTER(
+        DeliveredOrders,
+        INT(Orders[order_delivered_customer_date])
+            <= INT(Orders[order_estimated_delivery_date])
+    )
+RETURN
+    DIVIDE(
+        COUNTROWS(OnTimeOrders),
+        COUNTROWS(DeliveredOrders),
+        0
+    )
+```
+
+**Delayed Orders %**
+
+Calculates the percentage of eligible delivered orders that arrived after their estimated delivery date.
+
+```dax
+Delayed Orders % =
+VAR DeliveredOrders =
+    FILTER(
+        Orders,
+        Orders[order_status] = "delivered"
+            && NOT ISBLANK(Orders[order_delivered_customer_date])
+            && NOT ISBLANK(Orders[order_estimated_delivery_date])
+    )
+VAR DelayedOrders =
+    FILTER(
+        DeliveredOrders,
+        Orders[order_delivered_customer_date]
+            > Orders[order_estimated_delivery_date]
+    )
+RETURN
+    DIVIDE(
+        COUNTROWS(DelayedOrders),
+        COUNTROWS(DeliveredOrders),
+        0
+    )
+```
+
+**On-Time Delivery Rate**
+
+An additional measure with this name appears in the project screenshots. Its calculation uses the same on-time order logic as `On-Time Delivery Rate %`, with a date comparison that includes the time component.
+
+The screenshot shows it formatted as a whole number rather than a percentage.
+
+### 6. Dashboard KPI Summary
+
+| KPI | Dashboard Value |
+|---|---|
+| Total Sales | R$13.59M |
+| Total Freight | R$2.25M |
+| Total Orders | 99K |
+| Unique Customers | 96K |
+| Average Order Value | R$136.68 |
+| Average Items per Order | 1.14 |
+| Total Products | 32K |
+| Product Categories | 73 |
+| Total Items Sold | 113K |
+| Average Customer Rating | 4.09 / 5 |
+| Average Delivery Time | 12.50 days |
+| On-Time Delivery Rate | 91.89% |
+| Delayed Orders | 8.11% |
+| Average Order Processing Hours | 10.41 |
+
+### 7. DAX Functions Used
+
+| Function | Purpose |
+|---|---|
+| `SUM()` | Calculates total sales and freight |
+| `DISTINCTCOUNT()` | Counts unique customers, products and categories |
+| `COUNTROWS()` | Counts rows in a table |
+| `AVERAGE()` | Calculates average prices and ratings |
+| `AVERAGEX()` | Evaluates average durations row by row |
+| `FILTER()` | Applies conditions to order records |
+| `DATEDIFF()` | Calculates time differences |
+| `DIVIDE()` | Performs division with an alternate result |
+| `VAR` | Stores intermediate calculation results |
+| `ISBLANK()` | Identifies missing values |
+| `INT()` | Removes the time portion of date-time values for comparison |
+
+### 8. Business Applications
+
+These DAX measures support:
+
+- **Sales analysis:** Revenue, freight, average order value and purchasing patterns.
+- **Customer analysis:** Unique customer counts, repeat purchases and customer satisfaction.
+- **Product analysis:** Product assortment, sales volume and pricing.
+- **Delivery analysis:** Delivery speed, processing time, on-time performance and delays.
+
+Together, these measures power the five-page interactive Power BI dashboard and support data-driven analysis of the Brazilian e-commerce marketplace.
+
 ## Author
 
 **Ditya Gupta**
