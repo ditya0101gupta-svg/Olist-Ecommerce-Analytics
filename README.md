@@ -59,6 +59,44 @@ To transform Brazilian e-commerce transactional data into actionable business in
 
 Brazilian E-Commerce Public Dataset by Olist, available on Kaggle.
 
+## Data Model & Relationships
+
+The Olist E-Commerce Analytics Power BI report uses a relational data model connecting customer, order, product, seller, payment, review, and product-category information.
+
+### Table Relationships
+
+| Primary Table | Related Table | Relationship |
+|---|---|---|
+| Customers | Orders | One-to-One (1:1) |
+| Orders | Order_items | One-to-Many (1:*) |
+| Products | Order_items | One-to-Many (1:*) |
+| Sellers | Order_items | One-to-Many (1:*) |
+| Orders | Payments | One-to-Many (1:*) |
+| Category_Translation | Products | One-to-Many (1:*) |
+| Orders | Reviews | One-to-Many (1:*) |
+
+All seven relationships are active.
+
+### Model Design
+
+- Orders connects customer, transaction, payment, and review information.
+- Order_items provides item-level transaction details, including product, seller, price, and freight.
+- Products and Category_Translation support product-category analysis.
+- Sellers supports seller-related analysis.
+- Customers supports customer segmentation and geographic analysis.
+- Customer Purchase Frequency is an additional summary table used for purchasing-behavior analysis.
+
+### Benefits
+
+- Supports sales and revenue analysis across products and categories.
+- Enables customer purchasing-behavior analysis.
+- Supports payment, review, and delivery-performance reporting.
+- Provides a structured foundation for Power BI visuals and DAX calculations.
+
+### Data Model Diagram
+
+![Olist Power BI Data Model](Data_Model.png)
+
 ## Author
 
 **Ditya Gupta**
