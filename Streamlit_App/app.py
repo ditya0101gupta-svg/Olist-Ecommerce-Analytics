@@ -3,14 +3,19 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 from scipy import stats
+from pathlib import Path
+DATA_DIR = Path(__file__).resolve().parent
+
 
 st.set_page_config(page_title='Olist | E-Commerce Intelligence', page_icon='📊', layout='wide')
 st.markdown('''<style>.block-container{padding-top:1.5rem}.stMetric{background:#f4f7f6;padding:14px;border-radius:12px;border:1px solid #e5e9e7}</style>''',unsafe_allow_html=True)
 
 @st.cache_data
 def load():
-    orders=pd.read_csv('orders.csv.gz',dtype={'order_id':str,'customer_unique_id':str})
-    items=pd.read_csv('items.csv.gz',dtype={'order_id':str})
+    orders = pd.read_csv(
+    DATA_DIR / "orders.csv.gz",
+    dtype={"order_id": str, "customer_unique_id": str})
+    items = pd.read_csv(DATA_DIR / "items.csv.gz")
     orders['delayed']=orders['delayed'].map({'True':True,'False':False,True:True,False:False})
     return orders,items
 orders,items=load()
