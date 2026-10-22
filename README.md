@@ -4,6 +4,21 @@
 
 An end-to-end data analytics project using the Brazilian Olist e-commerce dataset. This project combines MySQL-based data analysis with an interactive, five-page Power BI dashboard to explore marketplace sales, customer behavior, product performance, and delivery efficiency.
 
+## 🚀 Live Streamlit Analytics App
+
+Explore the interactive Olist E-Commerce Intelligence dashboard featuring sales analytics, customer behavior, delivery performance, and four statistical hypothesis tests.
+
+**[Launch the Live Streamlit Dashboard](https://olist-ecommerce-analytics-ukfpw7bqrb97qrtqndgjsg.streamlit.app/)**
+
+**Features:**
+- Interactive sales and customer analytics
+- State and purchase-month filters
+- Delivery performance KPIs
+- Four statistical hypothesis tests
+- Python, Pandas, Plotly, SciPy, and Streamlit
+
+**Source Code:** [Streamlit App](Streamlit_App/)
+
 ## Tools & Technologies
 
 - **MySQL:** SQL queries and data analysis
